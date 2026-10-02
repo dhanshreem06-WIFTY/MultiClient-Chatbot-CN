@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>NetChat CN</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css', v='4') }}">
+</head>
+<body>
+  <div class="app-shell">
+
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-icon">N</div>
+        <div>
+          <div class="brand-title">NetChat</div>
+          <div class="brand-subtitle">Computer Networks</div>
+        </div>
+      </div>
+
+      <div class="side-status">
+        <span class="status-dot" id="sideStatusDot"></span>
+        <span id="sideStatus">Connecting...</span>
+      </div>
+
+      <button class="side-nav active" data-page="chat">
+        <span>💬</span> Chat
+      </button>
+      <button class="side-nav" data-page="network">
+        <span>🌐</span> Network
+      </button>
+      <button class="side-nav" data-page="about">
+        <span>ⓘ</span> About
+      </button>
+
+      <div class="sidebar-bottom">
+        <button id="themeButton" class="side-nav"><span>◐</span> Dark mode</button>
+        <button id="settingsButton" class="side-nav"><span>⚙</span> Settings</button>
+      </div>
+    </aside>
+
+    <main class="phone-frame">
+      <header class="mobile-header">
+        <div>
+          <h1 id="pageTitle">Chat</h1>
+          <div class="mobile-subtitle" id="pageSubtitle">Multi-client network</div>
+        </div>
+        <div class="header-actions">
+          <button class="icon-button" id="refreshButton" title="Refresh / reconnect">↻</button>
+          <button class="icon-button" id="paletteButton" title="Palette">◐</button>
+        </div>
+      </header>
+
+      <section class="search-wrap">
+        <span class="search-icon">⌕</span>
+        <input id="searchInput" type="text" placeholder="Search here..." autocomplete="off">
+        <button id="clearSearch" class="clear-search">×</button>
+      </section>
+
+      <section id="chatPage" class="page active-page">
+        <div class="chat-list" id="chatList"></div>
+        <div class="empty-state" id="emptyState">
+          <div class="empty-art">
+            <div class="bubble bubble-a">×</div>
+            <div class="bubble bubble-b">—</div>
+            <div class="bubble bubble-c">—</div>
+          </div>
+          <h2>No chat</h2>
+          <p>Select a person from the network list or start a chat with NetBot.</p>
+        </div>
+      </section>
+
+      <section id="networkPage" class="page">
+        <div class="network-card">
+          <div class="network-card-top">
+            <div>
+              <h2>Network</h2>
+              <p>People currently connected to this server.</p>
+            </div>
+            <span class="online-count" id="onlineCount">0</span>
+          </div>
+          <div id="userList" class="user-list"></div>
+        </div>
+
+        <div class="network-card info-card">
+          <h3>Connection</h3>
+          <div class="info-row"><span>Status</span><strong id="connectionText">Connecting...</strong></div>
+          <div class="info-row"><span>Transport</span><strong>Socket.IO</strong></div>
+          <div class="info-row"><span>Server</span><strong id="serverText">Local</strong></div>
+        </div>
+      </section>
+
+      <section id="aboutPage" class="page">
+        <div class="network-card">
+          <h2>NetChat CN</h2>
+          <p>A multi-client Computer Networks demonstration using Python, Flask-SocketIO and optional Ollama AI.</p>
+          <div class="feature-grid">
+            <div>TCP-based transport</div>
+            <div>Multi-client concurrency</div>
+            <div>Private messaging</div>
+            <div>Network room</div>
+            <div>Local AI</div>
+            <div>LAN support</div>
+          </div>
+        </div>
+      </section>
+
+      <nav class="bottom-nav">
+        <button class="bottom-item" data-page="home"><span>⌂</span><small>Home</small></button>
+        <button class="bottom-item selected" data-page="chat"><span>▰</span><small>Chat</small></button>
+        <button class="add-button" id="addButton" title="New chat">+</button>
+        <button class="bottom-item" data-page="network"><span>☷</span><small>listing</small></button>
+        <button class="bottom-item" data-page="profile"><span>♙</span><small>Profile</small></button>
+      </nav>
+    </main>
+  </div>
+
+  <div class="modal hidden" id="loginModal">
+    <div class="modal-card login-card">
+      <div class="login-logo">N</div>
+      <h2>Join NetChat</h2>
+      <p>Choose a username to connect to the multi-client server.</p>
+      <input id="usernameInput" maxlength="24" placeholder="Your username" autocomplete="off">
+      <button id="joinButton" class="primary-button">Join Network</button>
+      <div id="loginError" class="error-text"></div>
+    </div>
+  </div>
+
+  <div class="modal hidden" id="settingsModal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div>
+          <h2>Settings</h2>
+          <p>Customize your chat experience.</p>
+        </div>
+        <button class="close-button" data-close="settingsModal">×</button>
+      </div>
+
+      <label class="setting-row">
+        <span>
+          <strong>Dark mode</strong>
+          <small>Use a darker chat theme.</small>
+        </span>
+        <input id="darkToggle" type="checkbox">
+      </label>
+
+      <div class="palette-block">
+        <strong>Accent palette</strong>
+        <div class="palette">
+          <button class="swatch" data-accent="#0e9eaa" style="--swatch:#0e9eaa"></button>
+          <button class="swatch" data-accent="#6c63ff" style="--swatch:#6c63ff"></button>
+          <button class="swatch" data-accent="#e26d5c" style="--swatch:#e26d5c"></button>
+          <button class="swatch" data-accent="#3c9d5d" style="--swatch:#3c9d5d"></button>
+          <button class="swatch" data-accent="#e09f3e" style="--swatch:#e09f3e"></button>
+          <button class="swatch" data-accent="#d14d8b" style="--swatch:#d14d8b"></button>
+        </div>
+      </div>
+
+      <button id="clearLocalButton" class="danger-button">Clear local chat history</button>
+    </div>
+  </div>
+
+  <div class="modal hidden" id="chatModal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div>
+          <h2>New chat</h2>
+          <p>Choose a connected person or NetBot.</p>
+        </div>
+        <button class="close-button" data-close="chatModal">×</button>
+      </div>
+      <div id="newChatUsers" class="user-list"></div>
+    </div>
+  </div>
+
+  <section class="conversation hidden" id="conversation">
+    <header class="conversation-header">
+      <button id="backButton" class="icon-button">‹</button>
+      <div class="conversation-avatar" id="conversationAvatar">N</div>
+      <div class="conversation-title">
+        <strong id="conversationName">NetBot</strong>
+        <span id="conversationStatus">online</span>
+      </div>
+      <div class="header-actions">
+        <button id="conversationRefresh" class="icon-button">↻</button>
+      </div>
+    </header>
+
+    <div class="messages" id="messages"></div>
+    <div class="typing" id="typingIndicator"></div>
+
+    <form class="message-bar" id="messageForm">
+      <button type="button" class="attach-button" id="attachButton">＋</button>
+      <input id="messageInput" maxlength="4000" placeholder="Write a message..." autocomplete="off">
+      <button class="send-button" type="submit">➤</button>
+    </form>
+  </section>
+
+  <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+  <script src="{{ url_for('static', filename='js/app.js', v='4') }}"></script>
+</body>
+</html>
